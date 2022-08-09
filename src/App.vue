@@ -5,10 +5,8 @@
     </div>
     <div class="column is-three-quarter">
       <Formulario/>
-
     </div>
   </main>
-
 </template>
 
 <script lang="ts">
