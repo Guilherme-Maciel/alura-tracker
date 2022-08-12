@@ -1,27 +1,24 @@
 <template>
     <div class="is-flex is-align-items-center is-justify-content-space-between">
         <Cronometro :tempoEmSegundos="tempoEmSegundos"/>
-        <button class="button" @click="iniciar" :disabled="cronometroRunning">
-            <span class="icon">
-                <i class="fas fa-play"></i>
-            </span>
-            <span>play</span>
-        </button>
-        <button class="button" @click="finalizar" :disabled="!cronometroRunning">
-            <span class="icon">
-                <i class="fas fa-stop"></i>
-            </span>
-            <span>stop</span>
-        </button>
+        <Botao text="play" @clicado="iniciar" iconClass="fas fa-play"
+            :desabilitado="cronometroRunning"/>
+        <Botao text="stop" @clicado="finalizar" iconClass="fas fa-stop"
+            :desabilitado="!cronometroRunning"/>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import Cronometro from "./Cronometro.vue";
+import Botao from "./Botao.vue";
 
 export default defineComponent({
     name: "TemporizadorVue",
+    emits: [
+        //Quando temporizador for finalizado, algo vai acontecer
+        'aoTemporizadorFinalizado'
+    ],
     //Define o estado do componente
     data() {
         return {
@@ -40,8 +37,14 @@ export default defineComponent({
         finalizar() {
             this.cronometroRunning = false
             clearInterval(this.cronometro);
+            //Temporizador avisa ao pai que o componente foi emitido.
+            this.$emit('aoTemporizadorFinalizado', this.tempoEmSegundos)
+            this.tempoEmSegundos = 0
         }
     },
-    components: { Cronometro }
+    components: { 
+        Cronometro,
+        Botao
+    }
 })
 </script>
