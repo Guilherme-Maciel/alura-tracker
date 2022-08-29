@@ -1,5 +1,5 @@
 <template>
-    <div class="box has-text-weight-bold">
+    <div class="box has-text-weight-bold" :style="estilos">
         <!--Todos os filhos do <Box> serão carregados dentro da tag slot-->
         <slot></slot>
     </div>
@@ -8,12 +8,17 @@
 import {defineComponent} from 'vue'
 
 export default defineComponent({
-    name:"BoxVue"
+    name:"BoxVue",
+    data(){
+        return{
+            estilos:{
+                background: '#faf0ca'
+                //'background-color': '#faf0ca'
+                //backgroundColor: '#faf0ca'
+
+            }
+        }
+    }
 })
 </script>
 <!--scoped: só será aplicado para esse componente ou para os filhos-->
-<style scoped>
-.box{
-    background:#faf0ca;
-}
-</style>
