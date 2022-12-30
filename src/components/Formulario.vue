@@ -28,7 +28,9 @@
 </template>
 
 <script lang="ts">
+import { TipoDeNotificacao } from "@/interfaces/INotificacao";
 import { key } from "@/store";
+import { NOTIFICAR } from "@/store/tipo-mutacoes";
 import { defineComponent, computed } from "vue";
 import { useStore } from "vuex";
 import Temporizador from "./Temporizador.vue";
@@ -49,6 +51,15 @@ export default defineComponent({
     },
     methods:{
         finalizarTarefa(tempoDecorrido: number) : void{
+            const projeto = this.projetos.find((p) => p.id == this.idProjeto); // primeiro, buscamos pelo projeto
+            if(!projeto) { // se o projeto não existe...
+                this.store.commit(NOTIFICAR, {
+                    titulo: 'Ops!',
+                    texto: "Selecione um projeto antes de finalizar a tarefa!",
+                    tipo: TipoDeNotificacao.FALHA,
+                }); // notificamos o usuário
+                return; // ao fazer return aqui, o restante do método salvarTarefa não será executado. chamamos essa técnica de early return :)
+            }
             this.$emit('aoSalvarTarefa', {
                 duracaoEmSegundos: tempoDecorrido,
                 descricao: this.descricao,
@@ -62,6 +73,7 @@ export default defineComponent({
         const store = useStore(key)
 
         return{
+            store,
             projetos: computed(() => store.state.projetos)
         }
     }

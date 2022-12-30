@@ -1,21 +1,9 @@
 <template>
     <div class="notificacoes">
-        <article class="message is-success">
-            <div class="message-header">Atenção!</div>
+        <article class="message" :class="contexto[notificacao.tipo]" v-for="notificacao in notificacoes" :key="notificacao.id">
+            <div class="message-header">{{notificacao.titulo}}</div>
             <div class="message-body">
-                Aqui vai um texto de notificação bem bacana
-            </div>
-        </article>
-        <article class="message is-warning">
-            <div class="message-header">Atenção!</div>
-            <div class="message-body">
-                Aqui vai um texto de notificação bem bacana
-            </div>
-        </article>
-        <article class="message is-danger">
-            <div class="message-header">Atenção!</div>
-            <div class="message-body">
-                Aqui vai um texto de notificação bem bacana
+                {{notificacao.texto}}
             </div>
         </article>
     </div>
@@ -23,10 +11,28 @@
 
 <script lang="ts">
 
-import {defineComponent} from 'vue' 
+import { TipoDeNotificacao } from '@/interfaces/INotificacao';
+import { useStore } from '@/store';
+import {defineComponent, computed} from 'vue' 
 
 export default defineComponent({
-    name: "NotificacoesVue"
+    name: "NotificacoesVue",
+    data(){
+        return{
+            //Objeto que recebe o tipo de notificação e retorna a classe
+            contexto: {
+                [TipoDeNotificacao.SUCESSO]: 'is-success',
+                [TipoDeNotificacao.ATENCAO]: 'is-warning',
+                [TipoDeNotificacao.FALHA]: 'is-danger',
+            }
+        }
+    },
+    setup(){
+        const store = useStore()
+        return {
+            notificacoes: computed(()=>store.state.notificacoes)
+        }
+    }
 })
 </script>
 
