@@ -20,9 +20,10 @@
 <script lang="ts">
 import { TipoDeNotificacao } from '@/interfaces/INotificacao';
 import {useStore} from '@/store'
-import { ADICIONA_PROJETO, ALTERA_PROJETO } from '@/store/tipo-mutacoes';
+import {  } from '@/store/tipo-mutacoes';
 import { defineComponent} from 'vue';
 import useNotificador from '@/hooks/notificador';
+import { CADASTRAR_PROJETO, ALTERAR_PROJETO } from '@/store/tipo-acoes';
 
 export default defineComponent({
     name: 'FormularioVue',
@@ -49,19 +50,20 @@ export default defineComponent({
         salvar(){
             if(this.id){
                 //Editar
-                this.store.commit(ALTERA_PROJETO, {
+                this.store.dispatch(ALTERAR_PROJETO, {
                     id: this.id,
                     nome: this.nomeDoProjeto
-                })
+                }).then(()=>{this.lidarComSucesso()})
             }
             else{
                 //Faz o uso da mutation que criamos na store
-                this.store.commit(ADICIONA_PROJETO, this.nomeDoProjeto)
+                this.store.dispatch(CADASTRAR_PROJETO, this.nomeDoProjeto)
+                    .then(()=>{this.lidarComSucesso()})
             }
-            
+        },
+        lidarComSucesso(){
             this.nomeDoProjeto = '';
             this.notificar(TipoDeNotificacao.SUCESSO, 'Excelente', 'O projeto foi cadastrado com sucesso!!')
-
             //Redirecionar o usuário para a listagem
             this.$router.push('/projetos')
         }
