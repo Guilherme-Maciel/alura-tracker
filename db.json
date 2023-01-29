@@ -22,7 +22,15 @@
         "id": 1,
         "nome": "Alura Tracker"
       }
+    },
+    {
+      "duracaoEmSegundos": 3,
+      "descricao": "Refatoração VueX",
+      "projeto": {
+        "id": 1,
+        "nome": "Alura Tracker"
+      },
+      "id": 2
     }
-    
   ]
 }
