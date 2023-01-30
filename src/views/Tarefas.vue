@@ -18,11 +18,11 @@
                 <label for="descricaoDaTarefa" class="label">
                     Descrição
                 </label>
-                <input type="text" v-model="tarefaSelecionada.descricao" class="input" id="nomeDoProjeto">
+                <input type="text" v-model="tarefaSelecionada.descricao" class="input" id="descricaoDaTarefa">
             </div>
           </section>
           <footer class="modal-card-foot">
-            <button class="button is-success">Salvar alterações</button>
+            <button @click="alterarTarefa" class="button is-success">Salvar alterações</button>
             <button @click="fecharModal" class="button">Cancelar</button>
           </footer>
         </div>
@@ -35,7 +35,7 @@
   import Formulario from '../components/Formulario.vue';
   import Tarefa from '../components/Tarefa.vue';
   import Box from '../components/Box.vue';
-  import { OBTER_TAREFAS, CADASTRAR_TAREFA, OBTER_PROJETOS } from '@/store/tipo-acoes';
+  import { OBTER_TAREFAS, CADASTRAR_TAREFA, OBTER_PROJETOS, ALTERAR_TAREFA } from '@/store/tipo-acoes';
   import { useStore } from '@/store';
 import ITarefa from '@/interfaces/ITarefa';
   
@@ -82,6 +82,10 @@ import ITarefa from '@/interfaces/ITarefa';
       fecharModal(){
         this.tarefaSelecionada = null;
 
+      },
+      alterarTarefa(){
+        this.store.dispatch(ALTERAR_TAREFA, this.tarefaSelecionada)
+        .then(() => this.fecharModal())
       }
     }
   });
