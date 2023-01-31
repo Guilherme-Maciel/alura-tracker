@@ -24,6 +24,7 @@ import {  } from '@/store/tipo-mutacoes';
 import { defineComponent, ref } from 'vue';
 import useNotificador from '@/hooks/notificador';
 import { CADASTRAR_PROJETO, ALTERAR_PROJETO } from '@/store/tipo-acoes';
+import { useRouter } from 'vue-router';
 
 export default defineComponent({
     name: 'FormularioVue',
@@ -45,36 +46,12 @@ export default defineComponent({
     //         nomeDoProjeto: '',
     //     };
     // },
-    methods:{
-        //Método que preenche as informações de um projeto de acordo com a interface (id e nome)
-        salvar(){
-            if(this.id){
-                //Editar
-                this.store.dispatch(ALTERAR_PROJETO, {
-                    id: this.id,
-                    nome: this.nomeDoProjeto
-                }).then(()=>{this.lidarComSucesso()})
-            }
-            else{
-                //Faz o uso da mutation que criamos na store
-                this.store.dispatch(CADASTRAR_PROJETO, this.nomeDoProjeto)
-                    .then(()=>{this.lidarComSucesso()})
-            }
-        },
-        lidarComSucesso(){
-            this.nomeDoProjeto = '';
-            this.notificar(TipoDeNotificacao.SUCESSO, 'Excelente', 'O projeto foi cadastrado com sucesso!!')
-            //Redirecionar o usuário para a listagem
-            this.$router.push('/projetos')
-        }
-    },
-    //TODO: Ter acesso às props
-    //TODO: Migrar atribuição do nome do projeto para o setup
-    //TODO: Definir estado local dentro do Setup
     //Quando a variável precisa ser monitorada, utilizamos o método ref (transforma uma função em reativa)
     //Não temos acesso ao this dentro do setup.
     //O template já olha para o valor da variável, não precisando do .value
     setup(props){
+
+        const router = useRouter()
         const store = useStore()
         const {notificar} = useNotificador()
 
@@ -85,11 +62,33 @@ export default defineComponent({
             //? indica que se não houver projeto não tentar pegar o nome de undefined
             nomeDoProjeto.value = projeto?.nome || ''
         }
+        
+        const lidarComSucesso = () => {
+            nomeDoProjeto.value = '';
+            notificar(TipoDeNotificacao.SUCESSO, 'Excelente', 'O projeto foi cadastrado com sucesso!!')
+            //Redirecionar o usuário para a listagem
+            router.push('/projetos')
+        }
+
+                //Método que preenche as informações de um projeto de acordo com a interface (id e nome)
+        const salvar = () => {
+            if(props.id){
+                //Editar
+                store.dispatch(ALTERAR_PROJETO, {
+                    id: props.id,
+                    nome: nomeDoProjeto.value
+                }).then(()=>{lidarComSucesso()})
+            }
+            else{
+                //Faz o uso da mutation que criamos na store
+                store.dispatch(CADASTRAR_PROJETO, nomeDoProjeto.value)
+                    .then(()=>{lidarComSucesso()})
+            }
+        }
 
         return {
-            store,
-            notificar,
-            nomeDoProjeto
+            nomeDoProjeto,
+            salvar
         }
     }
 })
