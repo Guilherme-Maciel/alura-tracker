@@ -35,7 +35,7 @@ export default defineComponent({
     //Quando o componente for montado
     mounted(){
         if(this.id){
-            const projeto = this.store.state.projetos.find(proj => proj.id == this.id)
+            const projeto = this.store.state.projeto.projetos.find(proj => proj.id == this.id)
             //? indica que se não houver projeto não tentar pegar o nome de undefined
             this.nomeDoProjeto = projeto?.nome || ''
         }
