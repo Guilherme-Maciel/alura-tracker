@@ -4,12 +4,12 @@ import { createStore, Store, useStore as vuexUseStore } from "vuex";
 import { ADICIONA_TAREFA, ALTERA_TAREFA, DEFINIR_TAREFAS, NOTIFICAR } from "./tipo-mutacoes";
 import { OBTER_TAREFAS, CADASTRAR_TAREFA, ALTERAR_TAREFA } from "./tipo-acoes";
 import http from '@/http';
-import ITarefa from "@/interfaces/ITarefa";
 import { EstadoDoProjeto, projeto } from './modulos/projeto'
+import { EstadoDaTarefa, tarefa } from './modulos/tarefas'
 
 export interface Estado {
     notificacoes: INotificacao[],
-    tarefas: ITarefa[],
+    tarefa: EstadoDaTarefa,
     projeto: EstadoDoProjeto
 }
 
@@ -21,19 +21,11 @@ export const store = createStore<Estado>({
             projetos: []
         },
         notificacoes: [],
-        tarefas: []
+        tarefa: {
+            tarefas: []
+        }
     },
     mutations: {
-        [ADICIONA_TAREFA](state,tarefa: ITarefa) {
-            state.tarefas.push(tarefa)
-        },
-        [DEFINIR_TAREFAS](state, tarefas: ITarefa[]) {
-            state.tarefas = tarefas
-        },
-        [ALTERA_TAREFA](state, tarefa: ITarefa) {
-            const index = state.tarefas.findIndex(t => t.id == tarefa.id)
-            state.tarefas[index] = tarefa
-        },
         [NOTIFICAR](state, novaNotificacao: INotificacao){
             novaNotificacao.id = new Date().getTime()
             state.notificacoes.push(novaNotificacao)
@@ -45,23 +37,11 @@ export const store = createStore<Estado>({
         }
     },
     actions:{
-        //Faz uma promessa e devolve a lista de projetos da API, chamando a mutation para adicionar à lista de projetos.
-        [OBTER_TAREFAS] ({ commit }) {
-            http.get('tarefas')
-                .then(resposta => commit(DEFINIR_TAREFAS, resposta.data))
-        },
-        [CADASTRAR_TAREFA] ({commit}, tarefa: ITarefa){
-            return http.post('/tarefas', tarefa)
-                .then(resp =>commit(ADICIONA_TAREFA, resp.data) )
-        },
-        [ALTERAR_TAREFA] ({commit}, tarefa: ITarefa){
-            return http.put(`/tarefas/${tarefa.id}`, tarefa)
-                .then(() =>commit(ALTERA_TAREFA, tarefa) )
-        },
 
     },
     modules: {
-        projeto
+        projeto,
+        tarefa
     }
 })
 

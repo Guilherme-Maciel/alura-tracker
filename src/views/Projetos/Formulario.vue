@@ -21,7 +21,7 @@
 import { TipoDeNotificacao } from '@/interfaces/INotificacao';
 import {useStore} from '@/store'
 import {  } from '@/store/tipo-mutacoes';
-import { defineComponent} from 'vue';
+import { defineComponent, ref } from 'vue';
 import useNotificador from '@/hooks/notificador';
 import { CADASTRAR_PROJETO, ALTERAR_PROJETO } from '@/store/tipo-acoes';
 
@@ -33,18 +33,18 @@ export default defineComponent({
         }
     },
     //Quando o componente for montado
-    mounted(){
-        if(this.id){
-            const projeto = this.store.state.projeto.projetos.find(proj => proj.id == this.id)
-            //? indica que se não houver projeto não tentar pegar o nome de undefined
-            this.nomeDoProjeto = projeto?.nome || ''
-        }
-    },
-    data(){
-        return {
-            nomeDoProjeto: '',
-        };
-    },
+    // mounted(){
+    //     if(this.id){
+    //         const projeto = this.store.state.projeto.projetos.find(proj => proj.id == this.id)
+    //         //? indica que se não houver projeto não tentar pegar o nome de undefined
+    //         this.nomeDoProjeto = projeto?.nome || ''
+    //     }
+    // },
+    // data(){
+    //     return {
+    //         nomeDoProjeto: '',
+    //     };
+    // },
     methods:{
         //Método que preenche as informações de um projeto de acordo com a interface (id e nome)
         salvar(){
@@ -68,12 +68,28 @@ export default defineComponent({
             this.$router.push('/projetos')
         }
     },
-    setup(){
+    //TODO: Ter acesso às props
+    //TODO: Migrar atribuição do nome do projeto para o setup
+    //TODO: Definir estado local dentro do Setup
+    //Quando a variável precisa ser monitorada, utilizamos o método ref (transforma uma função em reativa)
+    //Não temos acesso ao this dentro do setup.
+    //O template já olha para o valor da variável, não precisando do .value
+    setup(props){
         const store = useStore()
         const {notificar} = useNotificador()
+
+        const nomeDoProjeto = ref("")
+
+        if(props.id){
+            const projeto = store.state.projeto.projetos.find(proj => proj.id == props.id)
+            //? indica que se não houver projeto não tentar pegar o nome de undefined
+            nomeDoProjeto.value = projeto?.nome || ''
+        }
+
         return {
             store,
-            notificar
+            notificar,
+            nomeDoProjeto
         }
     }
 })

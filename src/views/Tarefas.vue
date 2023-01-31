@@ -66,7 +66,7 @@ import ITarefa from '@/interfaces/ITarefa';
 
         return {
             store,
-            tarefas: computed(() => store.state.tarefas)
+            tarefas: computed(() => store.state.tarefa.tarefas)
         }
     },
     methods:{
