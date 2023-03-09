@@ -20,9 +20,11 @@
 <script lang="ts">
 import { TipoDeNotificacao } from '@/interfaces/INotificacao';
 import {useStore} from '@/store'
-import { ADICIONA_PROJETO, ALTERA_PROJETO } from '@/store/tipo-mutacoes';
-import { defineComponent} from 'vue';
+import {  } from '@/store/tipo-mutacoes';
+import { defineComponent, ref } from 'vue';
 import useNotificador from '@/hooks/notificador';
+import { CADASTRAR_PROJETO, ALTERAR_PROJETO } from '@/store/tipo-acoes';
+import { useRouter } from 'vue-router';
 
 export default defineComponent({
     name: 'FormularioVue',
@@ -32,46 +34,61 @@ export default defineComponent({
         }
     },
     //Quando o componente for montado
-    mounted(){
-        if(this.id){
-            const projeto = this.store.state.projetos.find(proj => proj.id == this.id)
+    // mounted(){
+    //     if(this.id){
+    //         const projeto = this.store.state.projeto.projetos.find(proj => proj.id == this.id)
+    //         //? indica que se não houver projeto não tentar pegar o nome de undefined
+    //         this.nomeDoProjeto = projeto?.nome || ''
+    //     }
+    // },
+    // data(){
+    //     return {
+    //         nomeDoProjeto: '',
+    //     };
+    // },
+    //Quando a variável precisa ser monitorada, utilizamos o método ref (transforma uma função em reativa)
+    //Não temos acesso ao this dentro do setup.
+    //O template já olha para o valor da variável, não precisando do .value
+    setup(props){
+
+        const router = useRouter()
+        const store = useStore()
+        const {notificar} = useNotificador()
+
+        const nomeDoProjeto = ref("")
+
+        if(props.id){
+            const projeto = store.state.projeto.projetos.find(proj => proj.id == props.id)
             //? indica que se não houver projeto não tentar pegar o nome de undefined
-            this.nomeDoProjeto = projeto?.nome || ''
+            nomeDoProjeto.value = projeto?.nome || ''
         }
-    },
-    data(){
-        return {
-            nomeDoProjeto: '',
-        };
-    },
-    methods:{
-        //Método que preenche as informações de um projeto de acordo com a interface (id e nome)
-        salvar(){
-            if(this.id){
+        
+        const lidarComSucesso = () => {
+            nomeDoProjeto.value = '';
+            notificar(TipoDeNotificacao.SUCESSO, 'Excelente', 'O projeto foi cadastrado com sucesso!!')
+            //Redirecionar o usuário para a listagem
+            router.push('/projetos')
+        }
+
+                //Método que preenche as informações de um projeto de acordo com a interface (id e nome)
+        const salvar = () => {
+            if(props.id){
                 //Editar
-                this.store.commit(ALTERA_PROJETO, {
-                    id: this.id,
-                    nome: this.nomeDoProjeto
-                })
+                store.dispatch(ALTERAR_PROJETO, {
+                    id: props.id,
+                    nome: nomeDoProjeto.value
+                }).then(()=>{lidarComSucesso()})
             }
             else{
                 //Faz o uso da mutation que criamos na store
-                this.store.commit(ADICIONA_PROJETO, this.nomeDoProjeto)
+                store.dispatch(CADASTRAR_PROJETO, nomeDoProjeto.value)
+                    .then(()=>{lidarComSucesso()})
             }
-            
-            this.nomeDoProjeto = '';
-            this.notificar(TipoDeNotificacao.SUCESSO, 'Excelente', 'O projeto foi cadastrado com sucesso!!')
-
-            //Redirecionar o usuário para a listagem
-            this.$router.push('/projetos')
         }
-    },
-    setup(){
-        const store = useStore()
-        const {notificar} = useNotificador()
+
         return {
-            store,
-            notificar
+            nomeDoProjeto,
+            salvar
         }
     }
 })

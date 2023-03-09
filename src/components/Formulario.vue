@@ -31,7 +31,7 @@
 import { TipoDeNotificacao } from "@/interfaces/INotificacao";
 import { key } from "@/store";
 import { NOTIFICAR } from "@/store/tipo-mutacoes";
-import { defineComponent, computed } from "vue";
+import { defineComponent, computed, ref } from "vue";
 import { useStore } from "vuex";
 import Temporizador from "./Temporizador.vue";
 
@@ -42,39 +42,48 @@ export default defineComponent({
     components: { 
         Temporizador 
     },
-    data(){
-        return {
-            //modelo que recebe o valor do input
-            descricao: '',
-            idProjeto: ''
-        }
-    },
+    // data(){
+    //     return {
+    //         //modelo que recebe o valor do input
+    //         descricao: '',
+    //         idProjeto: ''
+    //     }
+    // },
     methods:{
-        finalizarTarefa(tempoDecorrido: number) : void{
-            const projeto = this.projetos.find((p) => p.id == this.idProjeto); // primeiro, buscamos pelo projeto
+       
+    },
+    setup(props, {emit}){
+        const store = useStore(key)
+
+        const descricao = ref("")
+        const idProjeto = ref("")
+        const projetos = computed(() => store.state.projeto.projetos)
+
+        const finalizarTarefa = (tempoDecorrido: number) : void => {
+            const projeto = projetos.value.find((p) => p.id == idProjeto.value); // primeiro, buscamos pelo projeto
             if(!projeto) { // se o projeto não existe...
-                this.store.commit(NOTIFICAR, {
+                store.commit(NOTIFICAR, {
                     titulo: 'Ops!',
                     texto: "Selecione um projeto antes de finalizar a tarefa!",
                     tipo: TipoDeNotificacao.FALHA,
                 }); // notificamos o usuário
                 return; // ao fazer return aqui, o restante do método salvarTarefa não será executado. chamamos essa técnica de early return :)
             }
-            this.$emit('aoSalvarTarefa', {
+            emit('aoSalvarTarefa', {
                 duracaoEmSegundos: tempoDecorrido,
-                descricao: this.descricao,
-                projeto: this.projetos.find(proj => proj.id == this.idProjeto)
+                descricao: descricao.value,
+                projeto: projetos.value.find(proj => proj.id == idProjeto.value)
             })
-            this.descricao = ''
+            descricao.value = ''
 
         }
-    },
-    setup(){
-        const store = useStore(key)
+
 
         return{
-            store,
-            projetos: computed(() => store.state.projetos)
+            descricao,
+            idProjeto,
+            projetos,
+            finalizarTarefa
         }
     }
 })
